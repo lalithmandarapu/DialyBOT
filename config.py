@@ -1,4 +1,4 @@
-OPENWEATHER_API_KEY = ""
-TWILIO_ACCOUNT_SID = ""
-TWILIO_AUTH_TOKEN = ""
-TWILIO_WHATSAPP_NUMBER = "whatsapp:+14155238886"  # Twilio Sandbox Number
+OPENWEATHER_API_KEY = "your_openweather_api_key"
+TWILIO_ACCOUNT_SID = "your_twilio_account_sid"
+TWILIO_AUTH_TOKEN = "your_twilio_auth_token"
+TWILIO_WHATSAPP_NUMBER = "whatsapp:+14155238886"  # Twilio sandbox number
