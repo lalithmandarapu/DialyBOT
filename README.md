@@ -1,69 +1,43 @@
-# 🌤️ WhatsApp Weather & Daily Routine Bot
+#  Weather WhatsApp Notification Bot
 
-This project is a Flask-based WhatsApp bot that sends weather updates and scheduled daily routine messages directly to your WhatsApp using the **Twilio API** and **OpenWeatherMap**.
-
----
-
-## 📌 Features
-
-- Sends daily routine messages (e.g., wake up, lunch, evening walk)
-- Adds real-time weather updates for your city with each message
-- Sends a summary of the day every night, showing which walks were safe based on weather
-- Fully customizable schedule
-- Built with Flask, Twilio, OpenWeather API, and Python schedule
+This Python script automatically sends hourly weather updates for Hyderabad via WhatsApp using the **pywhatkit** module and OpenWeatherMap API.
 
 ---
 
-## 📁 Project Structure
+##  Features
 
-whatsapp-weather-bot/
-├── app.py # Main application and scheduler
-├── weather_service.py # Fetches city and weather info
-├── config.py # API credentials
-└── README.md # Project guide
-
+-  Real-time weather updates for Hyderabad
+- Sends WhatsApp messages **every hour**
+- Customizable message text
+- 🧠 Automatically handles scheduling and formatting
 
 ---
 
-## ⚙️ Prerequisites
+##  Requirements
 
-- Python 3.x
-- A Twilio account with WhatsApp sandbox setup
-- OpenWeatherMap API key
-- Flask, Requests, Twilio, and Schedule Python modules
+- Python 3.8 to 3.11 (64-bit)
+- WhatsApp Web login (must be logged in on your default browser)
+- Internet connection
 
 ---
 
-## 🔧 Installation
+## Python Dependencies
 
-1. **Clone the repository**
+Install the required Python packages using:
+
 ```bash
-git clone https://github.com/your-username/whatsapp-weather-bot.git
-cd whatsapp-weather-bot
+pip install pywhatkit requests schedule
+```
 
-Install dependencies
-pip install flask twilio schedule requests
+# Setup
 
-Verify your WhatsApp number with Twilio
+Get OpenWeatherMap API Key
+Sign up at https://openweathermap.org/ and get your free API key.
 
-Send the join code from the Twilio Console to +14155238886 from your WhatsApp
+Update the script with your information:
 
-Update your number and city in the code
+Replace API_KEY with your OpenWeatherMap API key.
 
-In app.py, set your verified WhatsApp number:
-numbers = ["whatsapp:+91YOURNUMBER"]
+Replace PHONE_NUMBER with your WhatsApp number (e.g., +919XXXXXXXXX).
 
-In weather_service.py, map your number to a city:
-phone_location_map = {
-    "whatsapp:+91YOURNUMBER": "YourCity"
-}
-
-Running the App
-python app.py
-
-The app will start a background scheduler
-
-Weather and routine messages will be sent automatically at specified times
-
-Visit http://localhost:5000 to see the bot status
-
+Change city from "Hyderabad" if desired.
