@@ -9,7 +9,7 @@ This Python script automatically sends hourly weather updates for Hyderabad via 
 -  Real-time weather updates for Hyderabad
 - Sends WhatsApp messages **every hour**
 - Customizable message text
-- 🧠 Automatically handles scheduling and formatting
+-  Automatically handles scheduling and formatting
 
 ---
 
