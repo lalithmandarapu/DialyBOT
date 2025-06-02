@@ -1,81 +1,66 @@
+import pywhatkit
+import requests
+import datetime
+import schedule
+import time
 
-from flask import Flask
-from twilio.rest import Client
-import schedule, time, threading
-from weather_service import get_location_from_number, get_weather
-from config import TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_NUMBER
+API_KEY = "Your OpenWeatherMap API key"
 
-app = Flask(__name__)
-client = Client(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN)
 
-numbers = ["whatsapp:+91987654321"]  # YOUR verified number
+PHONE_NUMBER = "Target phone number"
 
-daily_log = {number: [] for number in numbers}
+def get_weather_report(city="Hyderabad"):
+    try:
+        url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
+        response = requests.get(url)
+        data = response.json()
 
-# 🕒 Daily Routine
-daily_schedule = [
-    ("06:00", "🚶 Time to go for a morning walk!"),
-    ("09:00", "🍳 Time for breakfast!"),
-    ("13:00", "🍱 It's lunch time!"),
-    ("17:00", "☕ Enjoy your evening snacks!"),
-    ("18:00", "🚶 Time for evening walk!"),
-    ("20:00", "🍽️ Dinner time!"),
-    ("22:00", "😴 Time to sleep. Good night!"),
-]
+        if data["cod"] != 200:
+            return f"❌ Error fetching weather: {data['message']}"
 
-def send_whatsapp_message(number, body):
-    message = client.messages.create(
-        from_=TWILIO_WHATSAPP_NUMBER,
-        to=number,
-        body=body
-    )
-    print(f"✅ Message sent to {number}: {message.sid}")
+        temperature = data["main"]["temp"]
+        condition = data["weather"][0]["description"].title()
+        humidity = data["main"]["humidity"]
+        wind_speed = data["wind"]["speed"]
 
-def scheduled_task(time_label, activity_msg):
-    for number in numbers:
-        city = get_location_from_number(number)
-        weather = get_weather(city)
-        summary = weather["summary"]
-        description = weather["description"]
-
-        full_message = f"{activity_msg}\n{summary}"
-        send_whatsapp_message(number, full_message)
-
-        # 📝 Log for summary
-        daily_log[number].append((time_label, activity_msg, description))
-
-def send_summary():
-    for number in numbers:
-        log = daily_log[number]
-        travel_safe_count = sum(
-            1 for _, msg, desc in log
-            if "walk" in msg.lower() and all(x not in desc for x in ["rain", "storm", "snow"])
+        weather_report = (
+            f" Weather Update for {city}\n"
+            f" Temperature: {temperature}°C\n"
+            f" Condition: {condition}\n"
+            f" Humidity: {humidity}%\n"
+            f" Wind Speed: {wind_speed} m/s"
         )
-        total_walks = sum(1 for _, msg, _ in log if "walk" in msg.lower())
+        return weather_report
+    except Exception as e:
+        return f"❌ Could not fetch weather: {str(e)}"
 
-        travel_note = f"🚶 Walks planned: {total_walks} | Safe: {travel_safe_count}"
-        summary = "\n📊 *Daily Summary:*\n" + "\n".join(
-            f"{time} - {msg.split('!')[0]} ({desc})" for time, msg, desc in log
-        ) + f"\n\n{travel_note}"
-        
-        send_whatsapp_message(number, summary)
-        daily_log[number] = []
+def send_weather_update():
+    weather = get_weather_report("Hyderabad")
 
-def run_scheduler():
-    for time_label, activity in daily_schedule:
-        schedule.every().day.at(time_label).do(scheduled_task, time_label, activity)
-    schedule.every().day.at("22:30").do(send_summary)
 
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
+    now = datetime.datetime.now()
+    hour = now.hour
+    minute = now.minute + 2  
 
-@app.route("/")
-def home():
-    return "✅ WhatsApp Weather & Routine Bot is running."
+    if minute >= 60:
+        minute -= 60
+        hour += 1
+        if hour >= 24:
+            hour = 0
 
-if __name__ == "__main__":
-    t = threading.Thread(target=run_scheduler)
-    t.start()
-    app.run(port=5000)
+    print(f"[Scheduling] Sending weather at {hour:02d}:{minute:02d}")
+    try:
+        pywhatkit.sendwhatmsg(PHONE_NUMBER, message, hour, minute, wait_time=10, tab_close=True)
+        print("✅ Weather report scheduled!")
+    except Exception as e:
+        print(f"❌ Failed to schedule message: {str(e)}")
 
+# Run once immediately
+send_weather_update()
+
+schedule.every().hour.at(":00").do(send_weather_update)
+
+print("📡 Running hourly weather updates...")
+while True:
+    schedule.run_pending()
+    time.sleep(60)
